@@ -7,6 +7,7 @@ using UnityEngine;
 
 public class DungeonTile : MonoBehaviour
 {
+    [SerializeField] private TileBag.TileType _tileType;
 
     [SerializeField] private List<Vector3> _connectors = new();
 
@@ -22,8 +23,8 @@ public class DungeonTile : MonoBehaviour
     {
         if (worldPosition)
             return _connectors.Select(connector => transform.TransformPoint(connector)).ToList();
-        else
-            return _connectors;
+
+        return _connectors;
     }
 
     public List<Vector3Int> GetSurroundingTilePositions(bool worldPosition)
@@ -32,8 +33,8 @@ public class DungeonTile : MonoBehaviour
 
         if (worldPosition)
             return connectors.Select(connector => Vector3Int.RoundToInt(transform.TransformPoint(connector * 2f))).ToList();
-        else
-            return connectors.Select(connector => Vector3Int.RoundToInt(connector * 2f)).ToList();
+
+        return connectors.Select(connector => Vector3Int.RoundToInt(connector * 2f)).ToList();
     }
 
     private void OnDrawGizmos()
@@ -52,5 +53,4 @@ public class DungeonTile : MonoBehaviour
             Gizmos.DrawSphere(connector, 0.1f);
         }
     }
-
 }
