@@ -7,16 +7,30 @@ using UnityEngine;
 
 public class DungeonTile : MonoBehaviour
 {
+
     [SerializeField] private TileBag.TileType _tileType;
 
     [SerializeField] private List<Vector3> _connectors = new();
 
     [SerializeField] private Transform _animRoot;
 
-    private void Awake()
+
+    private List<DungeonTile> _adjacentTiles = new List<DungeonTile>();
+
+    public List<DungeonTile> AdjacentTiles => _adjacentTiles;
+
+    public TileBag.TileType TileType => _tileType;
+
+    public void Reveal()
     {
+        _animRoot.gameObject.SetActive(true);
         _animRoot.localScale = Vector3.zero;
         _animRoot.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBounce);
+    }
+
+    public void Hide()
+    {
+        _animRoot.gameObject.SetActive(false);
     }
 
     public List<Vector3> GetConnectors(bool worldPosition)
