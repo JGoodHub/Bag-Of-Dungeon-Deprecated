@@ -15,9 +15,9 @@ public class DungeonTile : MonoBehaviour
     [SerializeField] private Transform _animRoot;
 
 
-    private List<DungeonTile> _adjacentTiles = new List<DungeonTile>();
+    private List<DungeonTile> _connectedTiles = new List<DungeonTile>();
 
-    public List<DungeonTile> AdjacentTiles => _adjacentTiles;
+    public List<DungeonTile> ConnectedTiles => _connectedTiles;
 
     public TileBag.TileType TileType => _tileType;
 
@@ -33,7 +33,7 @@ public class DungeonTile : MonoBehaviour
         _animRoot.gameObject.SetActive(false);
     }
 
-    public List<Vector3> GetConnectors(bool worldPosition)
+    public List<Vector3> GetConnectorPositions(bool worldPosition)
     {
         if (worldPosition)
             return _connectors.Select(connector => transform.TransformPoint(connector)).ToList();
@@ -41,9 +41,9 @@ public class DungeonTile : MonoBehaviour
         return _connectors;
     }
 
-    public List<Vector3Int> GetSurroundingTilePositions(bool worldPosition)
+    public List<Vector3Int> GetConnectedTilePositions(bool worldPosition)
     {
-        List<Vector3> connectors = GetConnectors(false);
+        List<Vector3> connectors = GetConnectorPositions(false);
 
         if (worldPosition)
             return connectors.Select(connector => Vector3Int.RoundToInt(transform.TransformPoint(connector * 2f))).ToList();
@@ -55,14 +55,14 @@ public class DungeonTile : MonoBehaviour
     {
         Gizmos.color = Color.cyan;
 
-        foreach (Vector3 connector in GetConnectors(true))
+        foreach (Vector3 connector in GetConnectorPositions(true))
         {
             Gizmos.DrawSphere(connector, 0.05f);
         }
 
         Gizmos.color = Color.green;
 
-        foreach (Vector3 connector in GetSurroundingTilePositions(true))
+        foreach (Vector3 connector in GetConnectedTilePositions(true))
         {
             Gizmos.DrawSphere(connector, 0.1f);
         }
