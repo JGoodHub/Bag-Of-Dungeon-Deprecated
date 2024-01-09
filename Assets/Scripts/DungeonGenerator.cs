@@ -45,8 +45,16 @@ public class DungeonGenerator : MonoBehaviour
         GameObject dungeonInstanceObject = new GameObject("DungeonInstance");
         Dungeon dungeon = dungeonInstanceObject.AddComponent<Dungeon>();
 
-        List<Vector3Int> occupiedSpaces = new List<Vector3Int>();
-        List<Vector3Int> availableSpaces = new List<Vector3Int> {Vector3Int.zero};
+        // Create the start tile
+
+        GameObject startTilePrefab = GetPrefabForTileType(TileBag.TileType.Start);
+        DungeonTile startDungeonTile = Instantiate(startTilePrefab, Vector3.zero, Quaternion.identity, _tilesContainer).GetComponent<DungeonTile>();
+
+        List<Vector3Int> occupiedSpaces = new List<Vector3Int> {Vector3Int.zero};
+        List<DungeonTile> edgeTiles = new List<DungeonTile> {startDungeonTile};
+
+        List<Vector3Int> availableSpaces = new List<Vector3Int>();
+        availableSpaces.AddRange(startDungeonTile.GetAdjacentTilePositions(true));
 
         List<DungeonTile> tiles = new List<DungeonTile>();
 
@@ -58,11 +66,14 @@ public class DungeonGenerator : MonoBehaviour
             DungeonTile dungeonTile = Instantiate(tilePrefab, Vector3.zero, Quaternion.identity, _tilesContainer).GetComponent<DungeonTile>();
 
             // Find the most central available space (keeps the dungeon compact/circular)
-            Vector3Int chosenSpace = availableSpaces[0];
-            foreach (Vector3Int availableSpace in availableSpaces)
-                if (availableSpace.magnitude < chosenSpace.magnitude)
-                    chosenSpace = availableSpace;
+            DungeonTile mostCentralTile = edgeTiles[0];
+            foreach (DungeonTile edgeTile in edgeTiles)
+                if (edgeTile.transform.position.magnitude < mostCentralTile.transform.position.magnitude)
+                    mostCentralTile = edgeTile;
 
+            List<Vector3Int> centralTileAdjacentSpaces = mostCentralTile.GetAdjacentTilePositions(true);
+            Vector3Int chosenSpace = centralTileAdjacentSpaces[Random.Range(0, centralTileAdjacentSpaces.Count)];
+            
             dungeonTile.gameObject.name = $"DungeonTile_({drawnTileType} / {chosenSpace.x}, {chosenSpace.z})";
 
             // Move the tile to that space
@@ -113,7 +124,7 @@ public class DungeonGenerator : MonoBehaviour
             tiles.Add(dungeonTile);
 
             // Add the newly available positions (that aren't already occupied) to the search area
-            List<Vector3Int> potentialAvailablePositions = dungeonTile.GetConnectedTilePositions(true);
+            List<Vector3Int> potentialAvailablePositions = dungeonTile.GetAdjacentTilePositions(true);
             potentialAvailablePositions.RemoveAll(potentialPosition => occupiedSpaces.Contains(potentialPosition));
             potentialAvailablePositions.RemoveAll(potentialPosition => availableSpaces.Contains(potentialPosition));
 
@@ -132,7 +143,7 @@ public class DungeonGenerator : MonoBehaviour
             dungeonTile.transform.position = availableSpace;
 
             dungeonTile.gameObject.name = $"DungeonTile_({TileBag.TileType.Cap} / {availableSpace.x}, {availableSpace.z})";
-            
+
             // Rotate the end cap to face it's matching tile
             List<Vector3> allOtherConnectors = new List<Vector3>();
 
@@ -168,7 +179,7 @@ public class DungeonGenerator : MonoBehaviour
                 tile.Hide();
 
             // Get a list of the all the tiles connected to this one
-            List<Vector3Int> connectedTilePositions = tile.GetConnectedTilePositions(true);
+            List<Vector3Int> connectedTilePositions = tile.GetAdjacentTilePositions(true);
 
             foreach (DungeonTile otherTile in tiles)
             {

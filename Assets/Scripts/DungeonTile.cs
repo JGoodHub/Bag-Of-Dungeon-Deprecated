@@ -41,7 +41,7 @@ public class DungeonTile : MonoBehaviour
         return _connectors;
     }
 
-    public List<Vector3Int> GetConnectedTilePositions(bool worldPosition)
+    public List<Vector3Int> GetAdjacentTilePositions(bool worldPosition)
     {
         List<Vector3> connectors = GetConnectorPositions(false);
 
@@ -62,7 +62,7 @@ public class DungeonTile : MonoBehaviour
 
         Gizmos.color = Color.green;
 
-        foreach (Vector3 connector in GetConnectedTilePositions(true))
+        foreach (Vector3 connector in GetAdjacentTilePositions(true))
         {
             Gizmos.DrawSphere(connector, 0.1f);
         }
